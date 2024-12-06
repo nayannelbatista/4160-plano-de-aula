@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -9,6 +9,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
 import { CartItem } from '../../interfaces/cart_item';
+import { CartService } from '../../services/cart.service';
 
 
 @Component({
@@ -16,7 +17,7 @@ import { CartItem } from '../../interfaces/cart_item';
   imports: [
     CommonModule,
     MatCardModule,
-    MatDividerModule, 
+    MatDividerModule,
     MatFormFieldModule,
     MatIconModule,
     MatOptionModule,
@@ -27,20 +28,28 @@ import { CartItem } from '../../interfaces/cart_item';
   templateUrl: './cart.component.html',
   styleUrl: './cart.component.css'
 })
-export class CartComponent {
+export class CartComponent implements OnInit{
   cartItems: CartItem[] = [];
   total: number = 0;
+
+  constructor(private cartService: CartService) {}
+
+  ngOnInit() {
+    this.cartService.cartItems$.subscribe((items) => {
+      this.cartItems = items;
+    })
+  }
 
   getQuantities(currentQuantity: number): number[] {
     const maxQuantity = Math.max(currentQuantity, 10);
     return Array.from({ length: maxQuantity }, (_, i) => i + 1);
   }
 
-  updateQuantity(productId: number, newQuantity: number) {}  
+  updateQuantity(productId: number, newQuantity: number) { }
 
-  removeItem(productId: number) {}
+  removeItem(productId: number) { }
 
-  finalizePurchase() {}
+  finalizePurchase() { }
 
-  continueShopping() {}
+  continueShopping() { }
 }  
