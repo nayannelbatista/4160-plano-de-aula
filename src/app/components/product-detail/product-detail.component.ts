@@ -1,4 +1,4 @@
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -14,6 +14,8 @@ import { Meta, Title } from '@angular/platform-browser';
 import { Product } from '../../interfaces/product';
 import { AppShellNoRenderDirective } from '../../directives/app-shell-no-render.directive';
 import { AppShellRenderDirective } from '../../directives/app-shell-render.directive';
+import { CartService } from '../../services/cart.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
     selector: 'app-product-detail',
@@ -29,19 +31,23 @@ import { AppShellRenderDirective } from '../../directives/app-shell-render.direc
         MatButtonModule,
         MatIcon,
         MatProgressSpinner,
-        RouterLink
+        RouterLink,
+        FormsModule
     ],
     templateUrl: './product-detail.component.html',
     styleUrl: './product-detail.component.css'
 })
 export class ProductDetailComponent implements OnInit{
   quantities: number[] = [1, 2, 3, 4, 5];
+  selectedQuantity: number = 1;
   product!: Product;
 
   constructor(
     private route: ActivatedRoute,
     private title: Title,
-    private meta: Meta
+    private meta: Meta,
+    private cartService: CartService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -60,5 +66,10 @@ export class ProductDetailComponent implements OnInit{
       { property: 'og:image', content: product.imageDetails },
       { name: 'twitter:card', content: 'summary_large_image' }
     ])
+  }
+
+  addToCart(product: Product, quantity: number) {
+    this.cartService.addToCart(product, quantity);
+    this.router.navigate(['/checkout']);
   }
 }

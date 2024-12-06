@@ -18,13 +18,13 @@ export class CartService {
     return this.cartItemsSubject.getValue();
   }
 
-  addToCart(product: Product) {
+  addToCart(product: Product, quantity: number = 1) {
     const currentItems = this.getCartItems();
     const itemIndex = currentItems.findIndex((item) => item.product.id === product.id);
     if (itemIndex >= 0) {
-      currentItems[itemIndex].quantity++;
+      currentItems[itemIndex].quantity += quantity;
     } else {
-      currentItems.push({ product, quantity: 1 });
+      currentItems.push({ product, quantity });
     }
     this.cartItemsSubject.next(currentItems);
   }
