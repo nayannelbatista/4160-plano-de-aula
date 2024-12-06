@@ -13,6 +13,10 @@ export class CartService {
   getCartItems() {
     return this.cartItemsSubject.getValue();
   }
+  
+  private getCurrentItems(): CartItem[] {
+    return this.cartItemsSubject.getValue();
+  }
 
   addToCart(product: Product) {
     const currentItems = this.getCartItems();
@@ -23,5 +27,9 @@ export class CartService {
       currentItems.push({ product, quantity: 1 });
     }
     this.cartItemsSubject.next(currentItems);
+  }
+
+  getTotalQuantity(): number {
+    return this.getCurrentItems().reduce((acc, item) => acc + item.quantity, 0);
   }
 }
