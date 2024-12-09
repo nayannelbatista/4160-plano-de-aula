@@ -7,7 +7,7 @@ import { MatOptionModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CartItem } from '../../interfaces/cart_item';
 import { CartService } from '../../services/cart.service';
 
@@ -32,12 +32,20 @@ export class CartComponent implements OnInit{
   cartItems: CartItem[] = [];
   total: number = 0;
 
-  constructor(private cartService: CartService) {}
+  constructor(
+    private cartService: CartService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
     this.cartService.cartItems$.subscribe((items) => {
       this.cartItems = items;
+      this.calculateTotal();
     })
+  }
+
+  calculateTotal() {
+    this.total = this.cartItems.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
   }
 
   getQuantities(currentQuantity: number): number[] {
@@ -45,11 +53,19 @@ export class CartComponent implements OnInit{
     return Array.from({ length: maxQuantity }, (_, i) => i + 1);
   }
 
-  updateQuantity(productId: number, newQuantity: number) { }
+  updateQuantity(productId: number, newQuantity: number) { 
+    this.cartService.updateCartItem(productId, newQuantity)
+  }
 
-  removeItem(productId: number) { }
+  removeItem(productId: number) { 
+    this.cartService.removeFromCart(productId)
+  }
 
-  finalizePurchase() { }
+  finalizePurchase() { 
+    alert('Compra finalizada!');
+  }
 
-  continueShopping() { }
+  continueShopping() { 
+    this.router.navigate(['/']);
+  }
 }  

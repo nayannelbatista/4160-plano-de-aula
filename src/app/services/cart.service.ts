@@ -55,7 +55,7 @@ export class CartService {
   private deleteCartItem(productId: number): Observable<void> {
     return from(
       supabase
-        .from('cart_items')
+        .from('cart')
         .delete()
         .eq('product_id', productId)
         .then(({ error }) => {
