@@ -11,6 +11,30 @@ export class CartService {
   private cartItemsSubject = new BehaviorSubject<CartItem[]>([]);
   cartItems$ = this.cartItemsSubject.asObservable();
 
+  constructor() {
+    this.loadCart();
+  }
+
+  private loadCart() {
+    from(
+      supabase
+        .from('cart')
+        .select(`quantity, product:product_id (id, title, price, image)`)
+    ).subscribe({
+      next: ({ data, error }) => {
+        if (error) {
+          console.error('Erro ao carregar carrinho:', error.message);
+        } else {
+          const items = (data || []).map((item: any) => ({
+            product: item.product,
+            quantity: item.quantity,
+          }));
+          this.cartItemsSubject.next(items);
+        }
+      },
+    });
+  }
+
   private saveCartItem(cartItem: CartItem): Observable<void> {
     return from(
       supabase
@@ -19,7 +43,7 @@ export class CartService {
           {
             product_id: cartItem.product.id,
             quantity: cartItem.quantity,
-          }
+          },
         )
         .then(({ error }) => {
           if (error) throw new Error(error.message);
