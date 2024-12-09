@@ -52,13 +52,31 @@ export class CartService {
     );
   }
 
+  private deleteCartItem(productId: number): Observable<void> {
+    return from(
+      supabase
+        .from('cart_items')
+        .delete()
+        .eq('product_id', productId)
+        .then(({ error }) => {
+          if (error) throw new Error(error.message);
+        })
+    );
+  }
+
   private getCurrentItems(): CartItem[] {
     return this.cartItemsSubject.getValue();
   }
 
+  private findItemIndexByProductId(productId: number): number {
+    const currentItems = this.getCurrentItems();
+    return currentItems.findIndex((item) => item.product.id === productId);
+  }
+
   addToCart(product: Product, quantity: number = 1) {
     const currentItems = this.getCurrentItems();
-    const itemIndex = currentItems.findIndex((item) => item.product.id === product.id);
+    const itemIndex = this.findItemIndexByProductId(product.id);
+
     if (itemIndex >= 0) {
       currentItems[itemIndex].quantity += quantity;
     } else {
@@ -66,6 +84,27 @@ export class CartService {
     }
     this.cartItemsSubject.next(currentItems);
     this.saveCartItem(currentItems[itemIndex] || { product, quantity }).subscribe();
+  }
+
+  removeFromCart(productId: number) {
+    const updatedItems = this.getCurrentItems().filter((item) => item.product.id !== productId);
+    this.cartItemsSubject.next(updatedItems);
+    this.deleteCartItem(productId).subscribe();
+  }
+
+  updateCartItem(productId: number, quantity: number) {
+    const currentItems = this.getCurrentItems();
+    const itemIndex = this.findItemIndexByProductId(productId);
+
+    if (itemIndex >= 0) {
+      if (quantity <= 0) {
+        this.removeFromCart(productId);
+      } else {
+        currentItems[itemIndex].quantity = quantity;
+        this.cartItemsSubject.next(currentItems);
+        this.saveCartItem(currentItems[itemIndex]).subscribe();
+      }
+    }
   }
 
   getTotalQuantity(): number {
