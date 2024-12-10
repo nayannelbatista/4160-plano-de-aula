@@ -17,7 +17,8 @@ import { AppShellRenderDirective } from '../../directives/app-shell-render.direc
         MatProgressSpinnerModule
     ],
     templateUrl: './products-list.component.html',
-    styleUrl: './products-list.component.css'
+    styleUrl: './products-list.component.css',
+    host: { ngSkipHydration: 'true'}
 })
 export class ProductsListComponent implements OnInit{
 
